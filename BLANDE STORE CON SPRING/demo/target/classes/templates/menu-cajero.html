@@ -13,7 +13,7 @@
     <!-- Header modificado -->
     <header class="bg-gray-300 px-6 py-4 flex justify-between items-center shadow">
         <h1 class="text-xl font-semibold">
-            <a href="index.html" class="text-gray-900 hover:underline">
+            <a th:href="@{/}" class="text-gray-900 hover:underline">
                 Sistema Blande Store
             </a>
         </h1>
@@ -24,7 +24,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M5.121 17.804A4 4 0 0112 15a4 4 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                 <span class="user-name" th:text="${usuario.username}">UsuarioName</span>
+                <span class="user-name" th:text="${usuario.username}">UsuarioName</span>
             </div>
             <a th:href="@{/logout}" class="logout-btn bg-gray-800 text-white px-4 py-1 rounded hover:bg-gray-900">Cerrar Sesión</a>
         </div>
@@ -37,7 +37,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <!-- Botón Generar Ventas -->
-            <a href="generarVentas.html"
+            <a th:href="@{/Generar-Ventas}"
                 class="bg-gray-800 text-white flex flex-col items-center justify-center p-10 rounded-2xl hover:bg-gray-900 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-4" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
@@ -48,7 +48,7 @@
             </a>
 
             <!-- Botón Ver Stock -->
-            <a href="stock.html"
+            <a th:href="@{/admin/stock}"
                 class="bg-gray-800 text-white flex flex-col items-center justify-center p-10 rounded-2xl hover:bg-gray-900 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-4" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
@@ -61,7 +61,7 @@
 
         <!-- Botón Volver al Inicio -->
         <div class="mt-10 text-center">
-            <a href="index.html"
+             <a th:href="@{/}"
                 class="inline-block bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition font-medium">
                 Volver al Inicio
             </a>

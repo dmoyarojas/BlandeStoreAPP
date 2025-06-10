@@ -64,4 +64,10 @@ public class LoginController {
             return "login-cajero";
         }
     }
+@GetMapping("/logout")
+public String cerrarSesion(HttpSession session) {
+    session.invalidate(); // Invalida la sesión actual
+    return "redirect:/";  // Redirige al login principal (index)
+}
+
 }

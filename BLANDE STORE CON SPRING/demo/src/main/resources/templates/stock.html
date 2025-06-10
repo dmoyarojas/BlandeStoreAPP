@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Stock - Blande Store</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 </head>
 <body class="bg-gray-100">
     <!-- Header -->
@@ -30,50 +32,62 @@
         <!-- Filtros - Contenedor gris medio oscuro -->
         <div class="bg-gray-700 rounded-lg shadow overflow-hidden p-6 mb-6 max-w-6xl mx-auto">
             <form th:action="@{/admin/stock}" method="get" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Filtro por Tipo -->
-                    <div>
-                        <label for="tipoId" class="block text-white font-bold mb-2">Tipo</label>
-                        <select id="tipoId" name="tipoId"
-                        class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                                 onchange="cargarCategoriasStock(); this.form.submit()">
-                            <option value="">Todos</option>
-                            <option th:each="tipo : ${tipos}"
-                                    th:value="${tipo.id}"
-                                    th:text="${tipo.nombreTipo}"
-                                    th:selected="${param.tipoId == tipo.id.toString()}"></option>
-                        </select>
-                    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Filtro por Tipo -->
+        <div>
+            <label for="tipoId" class="block text-white font-bold mb-2">Tipo</label>
+            <select id="tipoId" name="tipoId"
+                    class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    onchange="cargarCategoriasStock()">
+                <option value="">Todos</option>
+                <option th:each="tipo : ${tipos}"
+                        th:value="${tipo.id}"
+                        th:text="${tipo.nombreTipo}"
+                        th:selected="${param.tipoId == tipo.id.toString()}"></option>
+            </select>
+        </div>
 
-                    <!-- Filtro por Categoría -->
-                    <div>
-                        <label for="categoriaId" class="block text-white font-bold mb-2">Categoría</label>
-                        <select id="categoriaId" name="categoriaId"
-                            class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white" onchange="this.form.submit()">
-                            <option value="">Todas</option>
-                            <option th:each="categoria : ${categorias}"
-                                    th:value="${categoria.id}"
-                                    th:text="${categoria.nombreCategoria}"
-                                    th:selected="${param.categoriaId == categoria.id.toString()}"></option>
-                        </select>
-                    </div>
+        <!-- Filtro por Categoría -->
+        <div>
+            <label for="categoriaId" class="block text-white font-bold mb-2">Categoría</label>
+            <select id="categoriaId" name="categoriaId"
+                    class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                <option value="">Todas</option>
+                <option th:each="categoria : ${categorias}"
+                        th:value="${categoria.id}"
+                        th:text="${categoria.nombreCategoria}"
+                        th:selected="${param.categoriaId == categoria.id.toString()}"></option>
+            </select>
+        </div>
 
-                    <!-- Filtro por Talla -->
-                    <div>
-                        <label for="talla" class="block text-white font-bold mb-2">Talla</label>
-                        <select id="talla" name="talla" 
-                            class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                            onchange="this.form.submit()">
-                            <option value="">Todas</option>
-                            <option value="S">S</option>
-                            <option value="M">M</option>
-                            <option value="L">L</option>
-                            <option value="XL">XL</option>
-                        </select>
-                    </div>
-                </div>
-                
-            </form>
+        <!-- Filtro por Talla -->
+        <div>
+            <label for="talla" class="block text-white font-bold mb-2">Talla</label>
+            <select id="talla" name="talla" 
+                    class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                <option value="">Todas</option>
+                <option value="S" th:selected="${param.talla == 'S'}">S</option>
+                <option value="M" th:selected="${param.talla == 'M'}">M</option>
+                <option value="L" th:selected="${param.talla == 'L'}">L</option>
+                <option value="XL" th:selected="${param.talla == 'XL'}">XL</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Botón de Filtrar -->
+    <div class="pt-4 text-right">
+        <button type="submit"
+                class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition duration-200">
+            Filtrar
+        </button>
+        <a th:href="@{/admin/stock/exportar-excel}" 
+        class="bg-green-600 text-white p-2 rounded hover:bg-green-700"
+        title="Exportar a Excel">Excel
+        <i class="fas fa-file-excel"></i>
+        </a>
+    </div>
+</form>
+
 
         </div>
             

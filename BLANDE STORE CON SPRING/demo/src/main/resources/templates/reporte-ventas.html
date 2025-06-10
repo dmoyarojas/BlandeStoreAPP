@@ -4,29 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-    <title>reporte-ventas</title>
+    <title>Reporte Ventas - Blande Store</title>
 </head>
 <body class="bg-gray-200 min-h-screen">
-    <header class="bg-gray-400 px-6 py-4 flex justify-between items-center shadow">
-        <div class="flex items-center gap-2">
-          <h1 class="text-xl font-semibold text-black">Reporte de Ventas</h1>
-          <!-- Ícono de gráfico -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 17v-6m4 6V7m4 10V4M5 21h14" />
-          </svg>
-        </div>
+    <header class="bg-gray-300 px-6 py-4 flex justify-between items-center shadow">
+        <h1 class="text-xl font-semibold">
+            <a th:href="@{/admin/menu}" class="text-gray-900 hover:underline">Volver al Menú</a>
+        </h1>
         <div class="flex items-center gap-4">
-          <button class="bg-gray-800 text-white px-4 py-1 rounded hover:bg-black">Cerrar Sesión</button>
-          <div class="flex items-center gap-1 text-black">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M5.121 17.804A4 4 0 0112 15a4 4 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>UsuarioAdmin</span>
-          </div>
+            <div class="flex items-center gap-1 text-gray-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span class="user-name" th:text="${usuario.username}">Administrador</span>
+            </div>
+            <a th:href="@{/logout}" class="logout-btn bg-gray-800 text-white px-4 py-1 rounded hover:bg-gray-900">Cerrar Sesión</a>
         </div>
-      </header>
+    </header>
       
     <main class="px-6 py-10">
     <!-- Contenedor de filtros y botones -->
@@ -107,10 +101,7 @@
             </table>
           </div>
   
-        <!-- Botón volver -->
-        <div class="mt-6 max-w-6xl mx-auto flex justify-start">
-            <a href="menu-admin.html" class="bg-gray-800 text-white px-6 py-2 rounded hover:bg-black">Volver Atrás</a>
-        </div>
+        
     </main>
 </body>
 
