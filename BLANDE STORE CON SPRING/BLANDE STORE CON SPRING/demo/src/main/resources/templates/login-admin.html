@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login Administrador - Blande Store</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <!-- SweetAlert -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm">
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Login Administrador</h2>
+
+    <form th:action="@{/login-admin}" method="post" class="space-y-5">
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-1" for="username">Usuario</label>
+        <input type="text" id="username" name="username" required
+          class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-1" for="password">Contraseña</label>
+        <input type="password" id="password" name="password" required
+          class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+
+      <div class="space-y-3">
+        <button type="submit"
+          class="w-full bg-blue-500 text-white py-2 rounded-md font-semibold hover:bg-blue-600 transition duration-200">
+          Iniciar Sesión
+        </button>
+        <a th:href="@{/}" 
+           class="block w-full text-center bg-gray-500 text-white py-2 rounded-md font-semibold hover:bg-gray-600 transition duration-200">
+          Volver al Inicio
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    const error = /*[[${error}]]*/ '';
+    if (error && error !== '') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de autenticación',
+        text: error,
+        confirmButtonColor: '#3085d6',
+      });
+    }
+    /*]]>*/
+  </script>
+
+</body>
+</html>
