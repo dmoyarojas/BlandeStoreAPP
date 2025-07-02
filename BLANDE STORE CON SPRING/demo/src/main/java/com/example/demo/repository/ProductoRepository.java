@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,10 +18,10 @@ public interface ProductoRepository extends JpaRepository<Producto, String> {
         @Param("talla") String talla
     );
     @Query("SELECT p FROM Producto p WHERE p.tipo.id = :tipoId AND p.categoria.id = :categoriaId")
-List<Producto> findByTipoIdAndCategoriaId(
+    List<Producto> findByTipoIdAndCategoriaId(
     @Param("tipoId") Long tipoId, 
     @Param("categoriaId") Long categoriaId
-);
+    );
     // Buscar por tipo
     List<Producto> findByTipoId(Long tipoId);
 
@@ -29,4 +30,16 @@ List<Producto> findByTipoIdAndCategoriaId(
 
     // Buscar por talla
     List<Producto> findByTalla(String talla);
+    
+
+
+    //estos metodos son para validar si un producto ya fue vendido
+    List<Producto> findByCodigoBarrasContainingIgnoreCase(String codigoBarras);
+
+    // Métodos para validar si un producto ya fue vendido
+    Optional<Producto> findByCodigoBarrasAndVendidoFalse(String codigoBarras);
+    
+    // Buscar todos los disponibles
+    List<Producto> findByVendidoFalse();
+    
 }

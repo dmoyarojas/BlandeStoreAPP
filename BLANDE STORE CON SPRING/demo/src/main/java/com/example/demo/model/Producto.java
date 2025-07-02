@@ -18,11 +18,11 @@ public class Producto {
     @Column(name = "codigo_barras", length = 50)
     private String codigoBarras;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)  
     @JoinColumn(name = "id_tipo", nullable = false)
     private TipoRopa tipo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+   @ManyToOne(fetch = FetchType.EAGER)  
     @JoinColumn(name = "id_categoria", nullable = false)
     private Categoria categoria;
 
@@ -31,6 +31,10 @@ public class Producto {
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precio;
+
+    
+    @Column(nullable = false)
+    private boolean vendido = false; // Solo este campo adicional
 
     // Getters y Setters
     public String getCodigoBarras() { return codigoBarras; }
@@ -47,4 +51,13 @@ public class Producto {
 
     public BigDecimal getPrecio() { return precio; }
     public void setPrecio(BigDecimal precio) { this.precio = precio; }
+
+    // Getters y Setters (mantén los que ya tienes y añade)
+    public boolean isVendido() {
+        return vendido;
+    }
+
+    public void setVendido(boolean vendido) {
+        this.vendido = vendido;
+    }
 }

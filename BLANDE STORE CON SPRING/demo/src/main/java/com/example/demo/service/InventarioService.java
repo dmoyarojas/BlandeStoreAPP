@@ -80,6 +80,9 @@ public class InventarioService {
     public List<Categoria> listarCategorias() {
     return categoriaRepository.findAll();
 }
+public List<Producto> buscarPorCodigo(String codigoBarras) {
+    return productoRepository.findByCodigoBarrasContainingIgnoreCase(codigoBarras);
+}
 
 /**
  * Exporta la lista de productos del inventario a un archivo Excel (.xlsx)
