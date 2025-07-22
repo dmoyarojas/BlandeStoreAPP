@@ -11,11 +11,8 @@ public class CajeroController {
      
     @GetMapping("/menu")
     public String menuCajero(HttpSession session, Model model) {
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
-        if (usuario == null || !"cajero".equals(usuario.getRol())) {
-            return "menu-cajero";
-        }
-        model.addAttribute("usuario", usuario);
+        // La seguridad ahora es manejada por CajeroAuthInterceptor
+        model.addAttribute("usuario", session.getAttribute("usuario"));
         return "menu-cajero";
     }
 }

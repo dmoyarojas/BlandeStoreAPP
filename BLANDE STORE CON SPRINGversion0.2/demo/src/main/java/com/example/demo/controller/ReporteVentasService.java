@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -54,6 +55,10 @@ public BigDecimal calcularGananciasDiarias(LocalDate fecha) {
     
     System.out.println("Ventas encontradas: " + ventas.size());
     return ventas;
+}
+
+public Optional<Venta> obtenerVentaPorId(Long id) {
+    return reporteVentasRepository.findById(id);
 }
 
 public byte[] exportarReporteVentasExcel(LocalDate fechaInicio, LocalDate fechaFin, String tipo) throws IOException {

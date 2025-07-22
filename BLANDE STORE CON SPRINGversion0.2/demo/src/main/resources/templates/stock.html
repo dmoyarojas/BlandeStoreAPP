@@ -107,6 +107,11 @@
                        class="ml-2 bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700 transition duration-200 ml-2">
                         Limpiar Filtros
                     </a>
+                    <!-- Botón solo para Administradores -->
+                    <a th:if="${usuario.rol == 'admin'}" th:href="@{/admin/inventario}"
+                       class="ml-2 bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700 transition duration-200">
+                        Gestionar Inventario
+                    </a>
                     <!-- Botón de Exportar a Excel -->
                     <a th:href="@{${usuario.rol == 'admin' ? '/admin/stock/exportar-excel' : '/cajero/stock/exportar-excel'}}" 
                        class="bg-green-600 text-white p-2 rounded hover:bg-green-700"

@@ -12,13 +12,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.demo.model.DetalleVenta;
 import com.example.demo.model.Usuario;
 import com.example.demo.model.Venta;
 
 import jakarta.servlet.http.HttpSession;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class ReporteVentasController {
@@ -83,8 +89,29 @@ public BigDecimal obtenerGananciasDiarias() {
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDispositionFormData("attachment", "Reporte_Ventas.xlsx");
 
-        return ResponseEntity.ok()
+    return ResponseEntity.ok()
                 .headers(headers)
                 .body(excelContent);
+    }
+
+    @GetMapping("/ventas/{id}")
+    @ResponseBody
+    public ResponseEntity<?> obtenerDetalleVenta(@PathVariable Long id) {
+        return reporteVentasService.obtenerVentaPorId(id)
+            .map(venta -> {
+                Map<String, Object> response = new HashMap<>();
+                response.put("cajero", venta.getCajero().getUsername());
+                response.put("detalles", venta.getDetalles().stream().map(detalle -> {
+                    Map<String, Object> detalleMap = new HashMap<>();
+                    String nombreProducto = detalle.getProducto().getTipo().getNombreTipo() + " " + detalle.getProducto().getCategoria().getNombreCategoria();
+                    detalleMap.put("productoNombre", nombreProducto);
+                    detalleMap.put("cantidad", detalle.getCantidad());
+                    detalleMap.put("precioUnitario", detalle.getPrecioUnitario());
+                    detalleMap.put("subtotal", detalle.getSubtotal());
+                    return detalleMap;
+                }).collect(Collectors.toList()));
+                return ResponseEntity.ok(response);
+            })
+            .orElse(ResponseEntity.notFound().build());
     }
 }

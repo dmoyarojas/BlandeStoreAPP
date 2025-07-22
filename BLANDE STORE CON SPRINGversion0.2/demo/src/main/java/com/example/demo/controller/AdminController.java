@@ -32,24 +32,15 @@ public class AdminController {
     
     @GetMapping("/menu")
     public String menuAdmin(HttpSession session, Model model) {
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
-        if (usuario == null || !"admin".equals(usuario.getRol())) {
-            return "redirect:/";
-        }
-        model.addAttribute("usuario", usuario);
+        // La seguridad ahora es manejada por AdminAuthInterceptor
+        model.addAttribute("usuario", session.getAttribute("usuario"));
         return "menu-admin";
     }
 
 @GetMapping("/usuarios")
 public String gestionUsuarios(HttpSession session, Model model) {
-    // Verificación mejorada
-    Usuario usuario = (Usuario) session.getAttribute("usuario");
-    if (usuario == null || !"admin".equals(usuario.getRol())) {
-        return "redirect:/login-admin"; // Redirige al login si no hay sesión
-    }
-    
-    // Añade el usuario al modelo para que esté disponible en Thymeleaf
-    model.addAttribute("usuario", usuario);
+    // La seguridad ahora es manejada por AdminAuthInterceptor
+    model.addAttribute("usuario", session.getAttribute("usuario"));
     
     // Carga los usuarios
     List<Usuario> usuarios = usuarioService.listarTodos();
@@ -60,11 +51,8 @@ public String gestionUsuarios(HttpSession session, Model model) {
 
     @PostMapping("/usuarios/guardar")
     @ResponseBody
-    public String guardarUsuario(@RequestBody Usuario usuario, HttpSession session) {
-        Usuario admin = (Usuario) session.getAttribute("usuario");
-        if (admin == null || !"admin".equals(admin.getRol())) {
-            return "error:No autorizado";
-        }
+    public String guardarUsuario(@RequestBody Usuario usuario) {
+        // La seguridad ahora es manejada por AdminAuthInterceptor
 
         // Validar si el username ya existe (para creación)
         if (usuario.getId() == null && usuarioService.existeUsername(usuario.getUsername())) {
@@ -77,24 +65,19 @@ public String gestionUsuarios(HttpSession session, Model model) {
 
     @GetMapping("/usuarios/{id}")
     @ResponseBody
-    public Usuario obtenerUsuario(@PathVariable Long id, HttpSession session) {
-        Usuario admin = (Usuario) session.getAttribute("usuario");
-        if (admin == null || !"admin".equals(admin.getRol())) {
-            return null;
-        }
+    public Usuario obtenerUsuario(@PathVariable Long id) {
+        // La seguridad ahora es manejada por AdminAuthInterceptor
         return usuarioService.obtenerPorId(id).orElse(null);
     }
 
     @DeleteMapping("/usuarios/{id}")
     @ResponseBody
     public String eliminarUsuario(@PathVariable Long id, HttpSession session) {
+        // La seguridad ahora es manejada por AdminAuthInterceptor
         Usuario admin = (Usuario) session.getAttribute("usuario");
-        if (admin == null || !"admin".equals(admin.getRol())) {
-            return "error:No autorizado";
-        }
 
         // No permitir eliminarse a sí mismo
-        if (admin.getId().equals(id)) {
+        if (admin != null && admin.getId().equals(id)) {
             return "error:No puedes eliminarte a ti mismo";
         }
 
@@ -103,6 +86,7 @@ public String gestionUsuarios(HttpSession session, Model model) {
     }
     @GetMapping("/usuarios/exportar-excel")
 public ResponseEntity<byte[]> exportarUsuariosExcel() throws IOException {
+    // La seguridad ahora es manejada por AdminAuthInterceptor
     byte[] excelBytes = usuarioService.exportarUsuariosExcel();
     
     HttpHeaders headers = new HttpHeaders();

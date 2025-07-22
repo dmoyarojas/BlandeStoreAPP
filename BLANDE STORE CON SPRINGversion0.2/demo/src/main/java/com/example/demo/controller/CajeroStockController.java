@@ -46,12 +46,8 @@ public class CajeroStockController {
         HttpSession session,
         Model model) {
 
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
-        if (usuario == null || !"cajero".equals(usuario.getRol())) {
-            return "redirect:/";
-        }
-
-        model.addAttribute("usuario", usuario);
+        // La seguridad ahora es manejada por CajeroAuthInterceptor
+        model.addAttribute("usuario", session.getAttribute("usuario"));
         model.addAttribute("productos", inventarioService.filtrarProductos(tipoId, categoriaId, talla, color));
         model.addAttribute("tipos", tipoRopaRepository.findAll());
         model.addAttribute("categorias", inventarioService.listarCategorias());
@@ -64,7 +60,7 @@ public class CajeroStockController {
     model.addAttribute("graficoCategoriaLabels", new ArrayList<>(conteoGraficoCategoria.keySet()));
     model.addAttribute("graficoCategoriaData", new ArrayList<>(conteoGraficoCategoria.values()));
 
-    return "stock";
+    return "stock-cajero";
 }
 
     @GetMapping("/categorias")
@@ -86,6 +82,7 @@ public class CajeroStockController {
         @RequestParam(required = false) String talla,
         @RequestParam(required = false) String color
     ) throws IOException {
+        // La seguridad ahora es manejada por CajeroAuthInterceptor
         byte[] contenidoExcel = inventarioService.exportarInventarioExcel(tipoId, categoriaId, talla,color);
 
         HttpHeaders headers = new HttpHeaders();

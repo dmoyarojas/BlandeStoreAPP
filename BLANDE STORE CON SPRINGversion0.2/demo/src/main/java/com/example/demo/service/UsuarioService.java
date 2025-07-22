@@ -9,6 +9,7 @@ import java.util.Optional;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import org.apache.poi.ss.usermodel.*;
@@ -22,19 +23,34 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public Usuario autenticar(String username, String password) {
         Usuario usuario = usuarioRepository.findByUsername(username);
-        if (usuario != null && usuario.getPassword().equals(password)) {
+        if (usuario != null && passwordEncoder.matches(password, usuario.getPassword())) {
             return usuario;
         }
         return null;
     }
 
-public List<Usuario> listarTodos() {
+    public List<Usuario> listarTodos() {
         return usuarioRepository.findAll();
     }
 
     public Usuario guardarUsuario(Usuario usuario) {
+        // Hashear la contraseña solo si se está estableciendo una nueva o ha cambiado
+        if (usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
+            // Evitar re-hashear si la contraseña ya está hasheada (ej. en una actualización sin cambio de pass)
+            if (!usuario.getPassword().startsWith("$2a$")) {
+                 usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+            }
+        } else {
+            // Si es una actualización y la contraseña viene vacía, mantenemos la antigua
+            if (usuario.getId() != null) {
+                usuarioRepository.findById(usuario.getId()).ifPresent(u -> usuario.setPassword(u.getPassword()));
+            }
+        }
         return usuarioRepository.save(usuario);
     }
 
