@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Menú Cajero - Blande Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+</head>
+
+<body class="bg-gray-200 min-h-screen">
+
+    <!-- Header modificado -->
+    <header class="bg-gray-300 px-6 py-4 flex justify-between items-center shadow">
+        <h1 class="text-xl font-semibold">
+            <a th:href="@{/}" class="text-gray-900 hover:underline">
+                Sistema Blande Store
+            </a>
+        </h1>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-1 text-gray-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5.121 17.804A4 4 0 0112 15a4 4 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="user-name" th:text="${usuario.username}">UsuarioName</span>
+            </div>
+           <a th:href="@{/logout}" class="logout-btn bg-gray-800 text-white px-4 py-1 rounded hover:bg-gray-900" 
+               onclick="event.preventDefault(); confirmarCierreSesion();">Cerrar Sesión</a>
+        </div>
+    </header>
+
+    <!-- Menú del Cajero -->
+    <main class="p-8">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Menú Cajero</h2>
+        <hr class="mb-8 border-gray-500" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <!-- Botón Generar Ventas -->
+            <a th:href="@{/Generar-Ventas}"
+                class="bg-gray-800 text-white flex flex-col items-center justify-center p-10 rounded-2xl hover:bg-gray-900 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7H19m-11.5 0a1.5 1.5 0 103 0m7 0a1.5 1.5 0 103 0" />
+                </svg>
+                <span class="text-lg font-semibold">Generar Ventas</span>
+            </a>
+
+            <!-- Botón Ver Stock -->
+            <a th:href="@{/cajero/stock}"
+                class="bg-gray-800 text-white flex flex-col items-center justify-center p-10 rounded-2xl hover:bg-gray-900 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 12V6a2 2 0 00-2-2H6a2 2 0 00-2 2v6m16 0v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6m16 0H4" />
+                </svg>
+                <span class="text-lg font-semibold">Ver Stock</span>
+            </a>
+        </div>
+
+        <!-- Botón Volver al Inicio -->
+        <div class="mt-10 text-center">
+            <a th:href="@{/}"
+                class="inline-block bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition font-medium">
+                Volver al Inicio
+            </a>
+        </div>
+    </main>
+        
+<script>
+          // Cierre de sesión (igual que antes)
+    function confirmarCierreSesion() {
+        Swal.fire({
+            title: '¿Cerrar sesión?',
+            text: "Estás a punto de salir del sistema",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, cerrar sesión',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/logout';
+            }
+        });
+    }
+    </script>
+
+    <!-- agregados xd -->
+
+
+    <!-- Agregar esto al final del body, antes de cerrar la etiqueta -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginSuccess = /*[[${loginSuccess}]]*/ false;
+        const nombreUsuario = /*[[${nombreUsuario}]]*/ '';
+        const userRol = /*[[${userRol}]]*/ '';
+        
+        if (loginSuccess && nombreUsuario && userRol) {
+            Swal.fire({
+                title: '¡Bienvenido al Sistema!',
+                html: `Usuario: <strong>${nombreUsuario}</strong><br>Rol: <strong>${userRol.toUpperCase()}</strong>`,
+                icon: 'success',
+                confirmButtonText: 'Continuar',
+                confirmButtonColor: '#3085d6',
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    });
+    /*]]>*/
+</script>
+</body>
+
+</html>
