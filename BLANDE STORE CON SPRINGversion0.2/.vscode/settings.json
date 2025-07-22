@@ -1,3 +1,4 @@
 {
-    "livePreview.defaultPreviewPath": "/demo/src/main/resources/templates/inventario.html"
+    "livePreview.defaultPreviewPath": "/demo/src/main/resources/templates/inventario.html",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

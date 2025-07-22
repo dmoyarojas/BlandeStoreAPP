@@ -49,26 +49,46 @@ public class InventarioService {
         return productoRepository.save(producto);
     }
 
-    // Listar todos los productos
+    // Listar todos los productos disponibles (no vendidos)
     public List<Producto> listarProductos() {
-        return productoRepository.findAll();
+        return productoRepository.findByVendidoFalse();
     }
 
     // Filtrar productos
-    public List<Producto> filtrarProductos(Long tipoId, Long categoriaId, String talla) {
-        if (tipoId != null && categoriaId != null && talla != null) {
-            return productoRepository.findByTipoAndCategoriaAndTalla(tipoId, categoriaId, talla);
-        } else if (tipoId != null && categoriaId != null) {
-            return productoRepository.findByTipoIdAndCategoriaId(tipoId, categoriaId);
-        } else if (tipoId != null) {
-            return productoRepository.findByTipoId(tipoId);
-        } else if (categoriaId != null) {
-            return productoRepository.findByCategoriaId(categoriaId);
-        } else if (talla != null) {
-            return productoRepository.findByTalla(talla);
-        }
-        return listarProductos();
+    public List<Producto> filtrarProductos(Long tipoId, Long categoriaId, String talla, String color) {
+    if (tipoId != null && categoriaId != null && talla != null && color != null) {
+        return productoRepository.findByTipoAndCategoriaAndTallaAndColor(tipoId, categoriaId, talla, color);
+    } else if (tipoId != null && categoriaId != null && talla != null) {
+        return productoRepository.findByTipoAndCategoriaAndTalla(tipoId, categoriaId, talla);
+    } else if (tipoId != null && categoriaId != null && color != null) {
+        return productoRepository.findByTipoAndCategoriaAndColor(tipoId, categoriaId, color);
+    } else if (tipoId != null && talla != null && color != null) {
+        return productoRepository.findByTipoAndTallaAndColor(tipoId, talla, color);
+    } else if (categoriaId != null && talla != null && color != null) {
+        return productoRepository.findByCategoriaAndTallaAndColor(categoriaId, talla, color);
+    } else if (tipoId != null && categoriaId != null) {
+        return productoRepository.findByTipoIdAndCategoriaId(tipoId, categoriaId);
+    } else if (tipoId != null && talla != null) {
+        return productoRepository.findByTipoIdAndTalla(tipoId, talla);
+    } else if (tipoId != null && color != null) {
+        return productoRepository.findByTipoIdAndColor(tipoId, color);
+    } else if (categoriaId != null && talla != null) {
+        return productoRepository.findByCategoriaIdAndTalla(categoriaId, talla);
+    } else if (categoriaId != null && color != null) {
+        return productoRepository.findByCategoriaIdAndColor(categoriaId, color);
+    } else if (talla != null && color != null) {
+        return productoRepository.findByTallaAndColor(talla, color);
+    } else if (tipoId != null) {
+        return productoRepository.findByTipoIdAndVendidoFalse(tipoId);
+    } else if (categoriaId != null) {
+        return productoRepository.findByCategoriaIdAndVendidoFalse(categoriaId);
+    } else if (talla != null) {
+        return productoRepository.findByTallaAndVendidoFalse(talla);
+    } else if (color != null) {
+        return productoRepository.findByColor(color);
     }
+    return listarProductos();
+}
 
     // Obtener tipos de ropa
     public List<TipoRopa> listarTiposRopa() {
@@ -91,8 +111,8 @@ public List<Producto> buscarPorCodigo(String codigoBarras) {
  * @return byte[] con el contenido del Excel listo para descargar
  * @throws IOException Si ocurre un error al generar el archivo
  */
-public byte[] exportarInventarioExcel(Long tipoId, Long categoriaId, String talla) throws IOException {
-    List<Producto> productos = filtrarProductos(tipoId, categoriaId, talla); // usa tu lógica actual
+public byte[] exportarInventarioExcel(Long tipoId, Long categoriaId, String talla,String color) throws IOException {
+    List<Producto> productos = filtrarProductos(tipoId, categoriaId, talla,color); // usa tu lógica actual
 
     try (Workbook workbook = new XSSFWorkbook()) {
         Sheet sheet = workbook.createSheet("Inventario");
@@ -105,7 +125,7 @@ public byte[] exportarInventarioExcel(Long tipoId, Long categoriaId, String tall
         headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
         headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        String[] headers = {"Código", "Tipo", "Categoría", "Talla", "Precio"};
+        String[] headers = {"Código", "Tipo", "Categoría", "Talla", "Color", "Precio"};
         Row headerRow = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -120,7 +140,8 @@ public byte[] exportarInventarioExcel(Long tipoId, Long categoriaId, String tall
             row.createCell(1).setCellValue(p.getTipo().getNombreTipo());
             row.createCell(2).setCellValue(p.getCategoria().getNombreCategoria());
             row.createCell(3).setCellValue(p.getTalla());
-            row.createCell(4).setCellValue(p.getPrecio().doubleValue());
+            row.createCell(4).setCellValue(p.getColor()); // Nueva columna para el color
+            row.createCell(5).setCellValue(p.getPrecio().doubleValue());
         }
 
         for (int i = 0; i < headers.length; i++) {
@@ -133,7 +154,7 @@ public byte[] exportarInventarioExcel(Long tipoId, Long categoriaId, String tall
     }
 }
 public Map<String, Long> contarProductosPorTipo() {
-    return productoRepository.findAll().stream()
+    return productoRepository.findByVendidoFalse().stream()
         .collect(Collectors.groupingBy(
             p -> p.getTipo().getNombreTipo(),
             Collectors.counting()
@@ -141,7 +162,7 @@ public Map<String, Long> contarProductosPorTipo() {
 }
 
 public Map<String, Long> contarProductosPorTipoYCategoria() {
-    return productoRepository.findAll().stream()
+    return productoRepository.findByVendidoFalse().stream()
         .collect(Collectors.groupingBy(
             p -> p.getTipo().getNombreTipo() + " - " + p.getCategoria().getNombreCategoria(),
             Collectors.counting()
@@ -149,7 +170,7 @@ public Map<String, Long> contarProductosPorTipoYCategoria() {
 }
 
 public Map<String, Long> contarProductosPorTipoCategoriaYTalla() {
-    return productoRepository.findAll().stream()
+    return productoRepository.findByVendidoFalse().stream()
         .collect(Collectors.groupingBy(
             p -> p.getTipo().getNombreTipo() + " - " + 
                  p.getCategoria().getNombreCategoria() + " - " + 
@@ -163,7 +184,7 @@ public Map<String, Long> contarProductosPorTipoCategoriaYTalla() {
 
 
 public Map<String, Long> contarProductosPorCategoria() {
-    return productoRepository.findAll().stream()
+    return productoRepository.findByVendidoFalse().stream()
         .collect(Collectors.groupingBy(
             p -> p.getCategoria().getNombreCategoria(),
             Collectors.counting()

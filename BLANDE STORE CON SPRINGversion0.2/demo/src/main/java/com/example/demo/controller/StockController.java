@@ -46,6 +46,7 @@ public class StockController {
         @RequestParam(required = false) Long tipoId,
         @RequestParam(required = false) Long categoriaId,
         @RequestParam(required = false) String talla,
+        @RequestParam(required = false) String color,
         HttpSession session,
         Model model) {
 
@@ -55,7 +56,7 @@ public class StockController {
         }
 
         model.addAttribute("usuario", usuario);
-        model.addAttribute("productos", inventarioService.filtrarProductos(tipoId, categoriaId, talla));
+        model.addAttribute("productos", inventarioService.filtrarProductos(tipoId, categoriaId, talla, color));
         model.addAttribute("tipos", tipoRopaRepository.findAll());
         model.addAttribute("categorias", inventarioService.listarCategorias());
 
@@ -94,9 +95,12 @@ public class StockController {
 public ResponseEntity<byte[]> exportarInventarioExcel(
     @RequestParam(required = false) Long tipoId,
     @RequestParam(required = false) Long categoriaId,
-    @RequestParam(required = false) String talla
+    @RequestParam(required = false) String talla,
+    @RequestParam(required = false) String color    
 ) throws IOException {
-    byte[] contenidoExcel = inventarioService.exportarInventarioExcel(tipoId, categoriaId, talla);
+    byte[] contenidoExcel = inventarioService.exportarInventarioExcel(tipoId, categoriaId, talla, color);
+
+     // Configurar los encabezados de la respuesta
 
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);

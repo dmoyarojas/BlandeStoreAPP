@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +42,7 @@ public class CajeroStockController {
         @RequestParam(required = false) Long tipoId,
         @RequestParam(required = false) Long categoriaId,
         @RequestParam(required = false) String talla,
+        @RequestParam(required = false) String color,
         HttpSession session,
         Model model) {
 
@@ -52,26 +52,20 @@ public class CajeroStockController {
         }
 
         model.addAttribute("usuario", usuario);
-        model.addAttribute("productos", inventarioService.filtrarProductos(tipoId, categoriaId, talla));
+        model.addAttribute("productos", inventarioService.filtrarProductos(tipoId, categoriaId, talla, color));
         model.addAttribute("tipos", tipoRopaRepository.findAll());
         model.addAttribute("categorias", inventarioService.listarCategorias());
+// Añadir datos para gráficos
+    Map<String, Long> conteoGraficoTipo = inventarioService.contarProductosPorTipo();
+    Map<String, Long> conteoGraficoCategoria = inventarioService.contarProductosPorCategoria();
+    
+    model.addAttribute("graficoTipoLabels", new ArrayList<>(conteoGraficoTipo.keySet()));
+    model.addAttribute("graficoTipoData", new ArrayList<>(conteoGraficoTipo.values()));
+    model.addAttribute("graficoCategoriaLabels", new ArrayList<>(conteoGraficoCategoria.keySet()));
+    model.addAttribute("graficoCategoriaData", new ArrayList<>(conteoGraficoCategoria.values()));
 
-        //lineas de conteo de productos
-        model.addAttribute("conteoPorTipo", inventarioService.contarProductosPorTipo());
-        model.addAttribute("conteoPorTipoCategoria", inventarioService.contarProductosPorTipoYCategoria());
-        model.addAttribute("conteoPorTipoCategoriaTalla", inventarioService.contarProductosPorTipoCategoriaYTalla());
-
-        // Añadir datos para gráficos
-        Map<String, Long> conteoGraficoTipo = inventarioService.contarProductosPorTipo();
-        Map<String, Long> conteoGraficoCategoria = inventarioService.contarProductosPorCategoria();
-        
-        model.addAttribute("graficoTipoLabels", new ArrayList<>(conteoGraficoTipo.keySet()));
-        model.addAttribute("graficoTipoData", new ArrayList<>(conteoGraficoTipo.values()));
-        model.addAttribute("graficoCategoriaLabels", new ArrayList<>(conteoGraficoCategoria.keySet()));
-        model.addAttribute("graficoCategoriaData", new ArrayList<>(conteoGraficoCategoria.values()));
-
-        return "stock";
-    }
+    return "stock";
+}
 
     @GetMapping("/categorias")
     @ResponseBody
@@ -89,9 +83,10 @@ public class CajeroStockController {
     public ResponseEntity<byte[]> exportarInventarioExcelCajero(
         @RequestParam(required = false) Long tipoId,
         @RequestParam(required = false) Long categoriaId,
-        @RequestParam(required = false) String talla
+        @RequestParam(required = false) String talla,
+        @RequestParam(required = false) String color
     ) throws IOException {
-        byte[] contenidoExcel = inventarioService.exportarInventarioExcel(tipoId, categoriaId, talla);
+        byte[] contenidoExcel = inventarioService.exportarInventarioExcel(tipoId, categoriaId, talla,color);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
