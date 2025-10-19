@@ -6,9 +6,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +25,8 @@ import com.example.demo.repository.TipoRopaRepository;
 import com.example.demo.service.InventarioService;
 
 import jakarta.servlet.http.HttpSession;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 @Controller
 @RequestMapping("/admin/inventario")
@@ -70,5 +72,21 @@ public List<Map<String, Object>> listarCategoriasPorTipo(@RequestParam Long tipo
         return map;
     }).collect(Collectors.toList());
 }
+
+    @GetMapping("/exportar-pendientes")
+    public ResponseEntity<byte[]> exportarPendientes() {
+        try {
+            byte[] excel = inventarioService.exportarPendientesExcelYMarcar();
+            if (excel == null || excel.length == 0) {
+                return ResponseEntity.noContent().build();
+            }
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", "productos_pendientes.xlsx");
+            return ResponseEntity.ok().headers(headers).body(excel);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 }

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-
+import org.springframework.http.HttpStatus;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -72,17 +72,28 @@ public String gestionUsuarios(HttpSession session, Model model) {
 
     @DeleteMapping("/usuarios/{id}")
     @ResponseBody
-    public String eliminarUsuario(@PathVariable Long id, HttpSession session) {
-        // La seguridad ahora es manejada por AdminAuthInterceptor
-        Usuario admin = (Usuario) session.getAttribute("usuario");
+    public ResponseEntity<String> eliminarUsuario(@PathVariable Long id, HttpSession session) {
+        try {
+            Usuario admin = (Usuario) session.getAttribute("usuario");
+            if (admin == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("error:No autorizado");
+            }
 
-        // No permitir eliminarse a sí mismo
-        if (admin != null && admin.getId().equals(id)) {
-            return "error:No puedes eliminarte a ti mismo";
+            if (admin.getId().equals(id)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error:No puedes eliminarte a ti mismo");
+            }
+
+            boolean eliminado = usuarioService.eliminarUsuario(id);
+            if (!eliminado) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("error:Usuario no encontrado");
+            }
+
+            return ResponseEntity.ok("success");
+        } catch (Exception e) {
+            e.printStackTrace(); // Para ver el error en los logs
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                               .body("error:" + e.getMessage());
         }
-
-        usuarioService.eliminarUsuario(id);
-        return "success";
     }
     @GetMapping("/usuarios/exportar-excel")
 public ResponseEntity<byte[]> exportarUsuariosExcel() throws IOException {

@@ -40,10 +40,17 @@ public class VentaApiController {
     @PostMapping("/agregar-producto")
     public ResponseEntity<?> agregarProducto(@RequestBody Map<String, Object> request, HttpSession session) {
         try {
-            String codigoBarras = (String) request.get("codigoBarras");
-            
-            if (codigoBarras == null || codigoBarras.isEmpty()) {
+            // Convertir el código de barras a Long
+            String codigoBarrasStr = (String) request.get("codigoBarras");
+            if (codigoBarrasStr == null || codigoBarrasStr.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Código de barras no proporcionado"));
+            }
+
+            Long codigoBarras;
+            try {
+                codigoBarras = Long.parseLong(codigoBarrasStr);
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Código de barras inválido"));
             }
 
             // Buscar producto disponible (no vendido)
@@ -110,11 +117,12 @@ public class VentaApiController {
     @DeleteMapping("/eliminar-producto/{codigoBarras}")
     public ResponseEntity<?> eliminarProducto(@PathVariable String codigoBarras, HttpSession session) {
         try {
+            Long codigoBarrasLong = Long.parseLong(codigoBarras);
             List<Producto> carrito = obtenerCarritoDeSesion(session);
             
             boolean removido = carrito.removeIf(p -> {
-                if (p.getCodigoBarras().equals(codigoBarras)) {
-                    productoService.marcarComoDisponible(codigoBarras); // Cambio clave: Reactivamos el producto
+                if (p.getCodigoBarras().equals(codigoBarrasLong)) {
+                    productoService.marcarComoDisponible(codigoBarrasLong);
                     return true;
                 }
                 return false;
@@ -125,6 +133,8 @@ public class VentaApiController {
             }
             
             return ResponseEntity.ok(Map.of("success", true, "message", "Producto eliminado del carrito"));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Código de barras inválido"));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of("error", "Error al eliminar producto: " + e.getMessage()));
         }

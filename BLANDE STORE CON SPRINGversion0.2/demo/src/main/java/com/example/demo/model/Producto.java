@@ -2,21 +2,25 @@ package com.example.demo.model;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "producto")
 public class Producto {
-
     @Id
-    @Column(name = "codigo_barras", length = 50)
-    private String codigoBarras;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "codigo_barras")
+    private Long codigoBarras;  // Cambiar de String a Long
 
     @ManyToOne(fetch = FetchType.EAGER)  
     @JoinColumn(name = "id_tipo", nullable = false)
@@ -39,9 +43,20 @@ public class Producto {
     @Column(nullable = false)
     private boolean vendido = false; // Solo este campo adicional
 
+    @Column(name = "etiqueta_impresa", nullable = false)
+    private boolean etiquetaImpresa = false;
+
     // Getters y Setters
-    public String getCodigoBarras() { return codigoBarras; }
-    public void setCodigoBarras(String codigoBarras) { this.codigoBarras = codigoBarras; }
+    public Long getCodigoBarras() { return codigoBarras; }
+    public void setCodigoBarras(Long codigoBarras) { this.codigoBarras = codigoBarras; }
+
+    // Propiedad transitoria para UI/JSON: 7 dígitos con ceros a la izquierda
+    @Transient
+    @JsonProperty("codigoBarrasStr")
+    public String getCodigoBarrasStr() {
+        if (this.codigoBarras == null) return null;
+        return String.format("%07d", this.codigoBarras);
+    }
 
     public TipoRopa getTipo() { return tipo; }
     public void setTipo(TipoRopa tipo) { this.tipo = tipo; }
@@ -70,5 +85,13 @@ public class Producto {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public boolean isEtiquetaImpresa() {
+        return etiquetaImpresa;
+    }
+
+    public void setEtiquetaImpresa(boolean etiquetaImpresa) {
+        this.etiquetaImpresa = etiquetaImpresa;
     }
 }

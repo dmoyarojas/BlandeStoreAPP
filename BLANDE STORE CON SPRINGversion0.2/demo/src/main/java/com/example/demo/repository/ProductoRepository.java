@@ -1,15 +1,17 @@
 package com.example.demo.repository;
 
+import com.example.demo.model.Producto;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
-import com.example.demo.model.Producto;
-
-public interface ProductoRepository extends JpaRepository<Producto, String> {
+@Repository
+public interface ProductoRepository extends JpaRepository<Producto, Long> {
     // Buscar por tipo, categoría y talla (solo disponibles)
     @Query("SELECT p FROM Producto p WHERE p.tipo.id = :tipoId AND p.categoria.id = :categoriaId AND p.talla = :talla AND p.vendido = false")
     List<Producto> findByTipoAndCategoriaAndTalla(
@@ -34,10 +36,11 @@ public interface ProductoRepository extends JpaRepository<Producto, String> {
 
 
     //estos metodos son para validar si un producto ya fue vendido
-    List<Producto> findByCodigoBarrasContainingIgnoreCase(String codigoBarras);
+    @Query("SELECT p FROM Producto p WHERE CAST(p.codigoBarras AS string) LIKE %:codigo%")
+    List<Producto> findByCodigoBarrasLike(@Param("codigo") String codigo);
 
     // Métodos para validar si un producto ya fue vendido
-    Optional<Producto> findByCodigoBarrasAndVendidoFalse(String codigoBarras);
+    Optional<Producto> findByCodigoBarrasAndVendidoFalse(Long codigoBarras);
     
     // Buscar todos los disponibles
     List<Producto> findByVendidoFalse();
@@ -108,4 +111,10 @@ public interface ProductoRepository extends JpaRepository<Producto, String> {
         @Param("categoriaId") Long categoriaId,
         @Param("talla") String talla
     );
+
+    List<Producto> findByEtiquetaImpresaFalse();
+
+    @Modifying
+    @Query("UPDATE Producto p SET p.etiquetaImpresa = true WHERE p.codigoBarras IN :ids")
+    int markEtiquetasPrinted(@Param("ids") List<Long> ids);
 }

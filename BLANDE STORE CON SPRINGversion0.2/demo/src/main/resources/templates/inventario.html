@@ -29,16 +29,34 @@
 
     <!-- Contenido principal -->
     <main class="p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">Inventario de Productos</h1>
+            <div>
+                <!-- Usar th:href y el mismo prefijo /admin/inventario -->
+                <a th:href="@{/admin/inventario/exportar-pendientes}"
+                   href="/admin/inventario/exportar-pendientes"
+                   class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-2">
+                    Exportar Pendientes
+                </a>
+            </div>
+        </div>
+        
         <h2 class="text-2xl font-semibold text-gray-800 mb-6">Registro de Productos</h2>
         
         <!-- Formulario -->
         <div class="bg-gray-700 rounded-lg shadow overflow-hidden p-6 max-w-4xl mx-auto">
-            <form th:action="@{/admin/inventario/guardar}" method="post" class="space-y-6" onsubmit="return validarFormulario()">
+            <form th:action="@{/admin/inventario/guardar}" method="post" class="space-y-6">
                 <!-- Código de Barras -->
-                <div>
-                    <label for="codigoBarras" class="block text-white font-bold mb-2">Código de Barras</label>
-                    <input type="text" id="codigoBarras" name="codigoBarras" required
-                    class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <div class="mb-4">
+                    <label for="codigoBarras" class="block text-gray-700 text-sm font-bold mb-2">Código de Barras</label>
+                    <input type="text" 
+                           id="codigoBarras" 
+                           name="codigoBarras" 
+                           readonly 
+                           disabled
+                           th:value="${producto != null ? producto.codigoBarrasStr : ''}"
+                           class="bg-gray-100 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                           placeholder="Se generará automáticamente">
                 </div>
 
                 <!-- Tipo de Prenda y Categoría -->
@@ -101,6 +119,29 @@
                 </div>
             </form>
         </div>
+
+        <!-- Tabla de productos registrados -->
+        <div class="mt-8">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Productos Registrados</h3>
+            <div class="bg-gray-700 rounded-lg shadow overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-800 text-white">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                Código de Barras
+                            </th>
+                            <!-- ...otras columnas... -->
+                        </tr>
+                    </thead>
+                    <tbody class="bg-gray-700 divide-y divide-gray-600">
+                        <tr th:each="producto : ${productos}">
+                            <td th:text="${producto.codigoBarrasStr}">0000001</td>
+                            <!-- ...existing columns... -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </main>
 
 <script>
@@ -108,14 +149,14 @@
     async function validarYEnviarFormulario(event) {
         event.preventDefault();
         
-        const codigoBarras = document.getElementById('codigoBarras').value;
+        // No validar codigoBarras (se genera automáticamente)
         const tipo = document.getElementById('tipo').value;
         const categoria = document.getElementById('categoria').value;
         const color = document.getElementById('color').value;
         const precio = document.getElementById('precio').value;
         
-        // Validaciones
-        if (!codigoBarras || !tipo || !categoria || !color ||!precio) {
+        // Validaciones (sin codigoBarras)
+        if (!tipo || !categoria || !color || !precio) {
             await Swal.fire({
                 icon: 'error',
                 title: 'Campos incompletos',
@@ -255,8 +296,66 @@ function cargarCategorias() {
         }
         /*]]>*/
     });
-</script>
-<script>
+
+    function mostrarCodigoBarras(codigo) {
+    // Si viene como número, formatearlo
+    if (typeof codigo === 'number') {
+        return String(codigo).padStart(7, '0');
+    }
+    // Si viene como string y es número, formatearlo
+    if (!isNaN(codigo)) {
+        return String(parseInt(codigo)).padStart(7, '0');
+    }
+    // Si ya viene formateado, devolverlo tal cual
+    return codigo;
+}
+
+    function guardarProducto() {
+        const formData = {
+            tipo: { id: document.getElementById('tipo').value },
+            categoria: { id: document.getElementById('categoria').value },
+            talla: document.getElementById('talla').value,
+            color: document.getElementById('color').value,
+            precio: document.getElementById('precio').value
+            // No incluimos codigoBarras aquí
+        };
+
+        // Si estamos editando y hay un código de barras existente
+        const codigoBarras = document.getElementById('codigoBarras').value;
+        if (codigoBarras && codigoBarras !== '') {
+            formData.codigoBarras = codigoBarras;
+        }
+
+        fetch('/inventario/guardar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            const codigoFormateado = data.codigoBarrasStr || mostrarCodigoBarras(data.codigoBarras);
+            if (codigoFormateado) {
+                Swal.fire({
+                    title: 'Producto guardado',
+                    text: `Código de barras generado: ${codigoFormateado}`,
+                    icon: 'success'
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'No se pudo guardar el producto',
+                icon: 'error'
+            });
+        });
+    }
+
     // Script para enfocar el input al cargar la vista
 document.addEventListener('DOMContentLoaded', function() {
     const codigoBarrasInput = document.getElementById('codigoBarras');

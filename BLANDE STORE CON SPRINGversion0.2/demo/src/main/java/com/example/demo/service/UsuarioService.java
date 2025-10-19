@@ -28,8 +28,11 @@ public class UsuarioService {
 
     public Usuario autenticar(String username, String password) {
         Usuario usuario = usuarioRepository.findByUsername(username);
-        if (usuario != null && passwordEncoder.matches(password, usuario.getPassword())) {
-            return usuario;
+        if (usuario != null) {
+            // Permitir tanto contraseñas cifradas como no cifradas
+            if (passwordEncoder.matches(password, usuario.getPassword()) || password.equals(usuario.getPassword())) {
+                return usuario;
+            }
         }
         return null;
     }
@@ -41,10 +44,10 @@ public class UsuarioService {
     public Usuario guardarUsuario(Usuario usuario) {
         // Hashear la contraseña solo si se está estableciendo una nueva o ha cambiado
         if (usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
-            // Evitar re-hashear si la contraseña ya está hasheada (ej. en una actualización sin cambio de pass)
-            if (!usuario.getPassword().startsWith("$2a$")) {
-                 usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-            }
+            // Permitir guardar contraseñas sin cifrar (no las vuelve a cifrar)
+            // Si quieres forzar el cifrado solo cuando no está cifrada, puedes dejar la condición,
+            // pero si quieres aceptar texto plano, simplemente guarda como está:
+            // usuario.setPassword(usuario.getPassword());
         } else {
             // Si es una actualización y la contraseña viene vacía, mantenemos la antigua
             if (usuario.getId() != null) {
@@ -58,8 +61,12 @@ public class UsuarioService {
         return usuarioRepository.findById(id);
     }
 
-    public void eliminarUsuario(Long id) {
+    public boolean eliminarUsuario(Long id) {
+        if (!usuarioRepository.existsById(id)) {
+            return false;
+        }
         usuarioRepository.deleteById(id);
+        return true;
     }
 
     public boolean existeUsername(String username) {

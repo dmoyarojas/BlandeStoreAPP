@@ -1,27 +1,19 @@
 package com.example.demo.service;
 
-import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import jakarta.transaction.Transactional;
 
-import org.apache.poi.ss.usermodel.Workbook;
-
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import java.io.ByteArrayOutputStream; 
-
+import org.apache.poi.ss.usermodel.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 
 
 import com.example.demo.model.Categoria;
@@ -30,8 +22,6 @@ import com.example.demo.model.TipoRopa;
 import com.example.demo.repository.CategoriaRepository;
 import com.example.demo.repository.ProductoRepository;
 import com.example.demo.repository.TipoRopaRepository;
-
-import jakarta.transaction.Transactional;
 
 @Service
 public class InventarioService {
@@ -46,6 +36,23 @@ public class InventarioService {
     // Guardar producto
     @Transactional
     public Producto guardarProducto(Producto producto) {
+        if (producto.getCodigoBarras() != null) {
+            // Si es una actualización, verifica que el producto exista
+            Optional<Producto> existente = productoRepository.findById(producto.getCodigoBarras());
+            if (existente.isPresent()) {
+                // Actualiza los campos necesarios
+                Producto productoExistente = existente.get();
+                productoExistente.setTipo(producto.getTipo());
+                productoExistente.setCategoria(producto.getCategoria());
+                productoExistente.setTalla(producto.getTalla());
+                productoExistente.setColor(producto.getColor());
+                productoExistente.setPrecio(producto.getPrecio());
+                return productoRepository.save(productoExistente);
+            }
+        }
+        
+        // Si es un nuevo producto, asegúrate de que no tenga ID
+        producto.setCodigoBarras(null);
         return productoRepository.save(producto);
     }
 
@@ -103,7 +110,16 @@ public class InventarioService {
     return categoriaRepository.findAll();
 }
 public List<Producto> buscarPorCodigo(String codigoBarras) {
-    return productoRepository.findByCodigoBarrasContainingIgnoreCase(codigoBarras);
+    try {
+        // Si es un número válido, buscar por código exacto
+        Long codigo = Long.parseLong(codigoBarras);
+        Optional<Producto> producto = productoRepository.findById(codigo);
+        return producto.map(Collections::singletonList)
+                      .orElse(Collections.emptyList());
+    } catch (NumberFormatException e) {
+        // Si no es un número válido, devolver lista vacía
+        return Collections.emptyList();
+    }
 }
 
 /**
@@ -191,4 +207,68 @@ public Map<String, Long> contarProductosPorCategoria() {
         ));
 }
 
+public List<Producto> buscarProductos(String termino) {
+    if (termino == null || termino.isEmpty()) {
+        return productoRepository.findAll();
+    }
+    return productoRepository.findByCodigoBarrasLike(termino);
+}
+
+    @Transactional
+    public byte[] exportarPendientesExcelYMarcar() throws IOException {
+        List<Producto> productos = productoRepository.findByEtiquetaImpresaFalse();
+        if (productos.isEmpty()) {
+            return null; // controller devolverá 204 No Content
+        }
+
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Productos Pendientes");
+
+            // Cabecera
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {"Código de Barras", "Tipo", "Categoría", "Talla", "Color", "Precio", "Impreso"};
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            int rowNum = 1;
+            for (Producto p : productos) {
+                Row row = sheet.createRow(rowNum++);
+                // muestra el id o el string formateado si tienes getCodigoBarrasStr()
+                row.createCell(0).setCellValue(p.getCodigoBarras() != null ? p.getCodigoBarras().toString() : "");
+                row.createCell(1).setCellValue(p.getTipo() != null ? p.getTipo().getNombreTipo() : "");
+                row.createCell(2).setCellValue(p.getCategoria() != null ? p.getCategoria().getNombreCategoria() : "");
+                row.createCell(3).setCellValue(p.getTalla() != null ? p.getTalla() : "");
+                row.createCell(4).setCellValue(p.getColor() != null ? p.getColor() : "");
+                row.createCell(5).setCellValue(p.getPrecio() != null ? p.getPrecio().doubleValue() : 0.0);
+                row.createCell(6).setCellValue(p.isEtiquetaImpresa() ? "Impreso" : "Si");
+            }
+
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            workbook.write(out);
+            byte[] bytes = out.toByteArray();
+
+            // Marcar como impresas sólo las que exportamos
+            List<Long> ids = productos.stream()
+                    .map(Producto::getCodigoBarras)
+                    .filter(java.util.Objects::nonNull)
+                    .collect(Collectors.toList());
+            if (!ids.isEmpty()) {
+                productoRepository.markEtiquetasPrinted(ids);
+                // la transacción guardará al commit
+            }
+
+            return bytes;
+        }
+    }
 }
