@@ -5,7 +5,7 @@ FROM maven:3.9.6-eclipse-temurin-21 AS build
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia los archivos de configuración de Maven (para usar el caché)
+# Copia los archivos de configuración de Maven (para usar el caché)asd
 COPY pom.xml .
 
 # Copia el código fuente
