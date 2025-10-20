@@ -1,6 +1,6 @@
 {
   "build": {
-    "builder": "maven"
+    "builder": "nixpacks"
   },
   "deploy": {
     "rootDirectory": "BLANDE STORE CON SPRINGversion0.2",
