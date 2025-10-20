@@ -3,9 +3,9 @@
     "builder": "nixpacks"
   },
   "deploy": {
-    "rootDirectory": "BLANDE STORE CON SPRINGversion0.2/demo",
+    "rootDirectory": "BLANDE-STORE-SPRING-V02/demo",
     "buildCommand": "mvn clean package -DskipTests",
-    "startCommand": "sh \"BLANDE STORE CON SPRINGversion0.2/demo/start.sh\""
+    "startCommand": "sh BLANDE-STORE-SPRING-V02/demo/start.sh"
     
   }
 }
