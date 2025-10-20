@@ -4,9 +4,7 @@
   },
   "deploy": {
     "rootDirectory": "BLANDE-STORE-SPRING-V02/demo",
-    "buildCommand": "mvn clean install -DskipTests", 
-    
-    "startCommand": "cd BLANDE-STORE-SPRING-V02/demo && java -jar target/app.jar"
-   
+    "buildCommand": "mvn clean install -DskipTests",
+    "startCommand": "java -jar target/app.jar"
   }
 }
