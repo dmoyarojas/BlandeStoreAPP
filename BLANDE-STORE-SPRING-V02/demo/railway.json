@@ -5,7 +5,7 @@
   "deploy": {
     "rootDirectory": "BLANDE-STORE-SPRING-V02/demo",
     "buildCommand": "mvn clean package -DskipTests",
-    "startCommand": "java -jar BLANDE-STORE-SPRING-V02/demo/target/demo-0.0.1-SNAPSHOT.jar"
+    "startCommand": "cd BLANDE-STORE-SPRING-V02/demo && java -jar target/app.jar"
     
   }
 }
